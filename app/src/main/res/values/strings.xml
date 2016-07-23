@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Summoner Profiles - League of Legends</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="summPrompt">Summoner Name</string>
+    <string name="summFind">Find Summoner</string>
+    <string name="summLevel">Summoner Level</string>
+    <string name="title_activity_summoner_profile">SummonerProfile</string>
+    <string name="matchHistory">Match History</string>
+    <string name="rankedStats">Ranked Stats</string>
+    <string name="totalStats">Total Stats</string>
+
+    <!-- String arrays-->
+
+    <!-- spinner list-->
+    <string-array name="regionSpinner">
+        <item>BR</item>
+        <item>EUNE</item>
+        <item>EUW</item>
+        <item>LAN</item>
+        <item>LAS</item>
+        <item>NA</item>
+        <item>OCE</item>
+        <item>RU</item>
+        <item>TR</item>
+        <item>KR</item>
+    </string-array>
+
+</resources>

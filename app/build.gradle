@@ -1,13 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.0.2"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+    useLibrary  'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "chris.portokalis.summonerprofiles_leagueoflegends"
         minSdkVersion 16
-        targetSdkVersion 21
+        targetSdkVersion 20
         versionCode 1
         versionName "1.0"
     }
