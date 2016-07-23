@@ -31,6 +31,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
+import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.Utils.StringUtils;
+
 public class SummonerProfile extends Activity implements View.OnClickListener {
 
     public TextView summonerName;
