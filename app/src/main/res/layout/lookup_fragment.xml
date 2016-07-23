@@ -24,10 +24,7 @@
                 android:layout_height="50dp"
                 android:id="@+id/summSearchKey"/>
 
-
-
         </LinearLayout>
-
 
         <Spinner
             android:layout_height="wrap_content"
