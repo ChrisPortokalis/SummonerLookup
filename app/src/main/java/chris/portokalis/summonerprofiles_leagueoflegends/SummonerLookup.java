@@ -48,9 +48,6 @@ public class SummonerLookup extends ActionBarActivity {
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.add(frame.getId(),new LookupFragment()).commit();
-
-        //set dev key
-        //
     }
 
     @Override

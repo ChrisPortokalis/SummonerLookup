@@ -13,11 +13,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.*;
-import org.apache.http.*;
-import org.apache.http.HttpEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,20 +46,15 @@ public class ImageAsyncTask extends AsyncTask<String, Bitmap, String> {
         {
             InputStream is = (InputStream) new URL(this.urlString).getContent();
             this.iconDrawable = Drawable.createFromStream(is, this.icondId + ".png");
-
-
-            //System.out.println(this.result.toString());
-
         }
         catch(MalformedURLException mue)
         {
-
+            mue.printStackTrace();
         }
         catch(IOException ioe)
         {
-
+            ioe.printStackTrace();
         }
-
 
         return urlString;
     }
@@ -74,7 +64,6 @@ public class ImageAsyncTask extends AsyncTask<String, Bitmap, String> {
     protected void onPostExecute(String string)
     {
         this.summProf.summonerProfileImage.setImageDrawable(this.iconDrawable);
-
     }
 
 

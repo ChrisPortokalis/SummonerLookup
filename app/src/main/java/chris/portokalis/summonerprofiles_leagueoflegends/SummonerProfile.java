@@ -1,21 +1,13 @@
 package chris.portokalis.summonerprofiles_leagueoflegends;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
 import android.widget.Button;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -25,20 +17,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-
 import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.Utils.StringUtils;
+import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.DAO.RiotApiSummonerDao;
+import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.Model.SummonerInfo;
+import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.Service.RiotApiSummonerService;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SummonerProfile extends Activity implements View.OnClickListener {
 
     public TextView summonerName;
     public TextView summonerLevel;
     public ImageView summonerProfileImage;
-    public Button refreshButton;
     public ScrollView profileScrollView;
     public JSONObject totalStatsJson;
 
@@ -47,14 +38,9 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_summoner_profile);
-        Intent intentFromLookup = getIntent();
-        String summonerJsonString = intentFromLookup.getStringExtra("json");
-        String nameString = intentFromLookup.getStringExtra("name");
-
-        System.out.println("SUMMONER JSON = " + summonerJsonString);
-        System.out.println("NAME STRING = " + nameString);
 
         this.profileScrollView = (ScrollView)findViewById(R.id.profileScrollView);
 
@@ -63,37 +49,11 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
 
         summonerProfileImage = (ImageView)findViewById(R.id.summonerIconImage);
 
-        refreshButton = (Button)findViewById(R.id.refreshButton);
-        refreshButton.setOnClickListener(this);
+        Intent intentFromLookup = getIntent();
+        String region = intentFromLookup.getStringExtra("region");
+        String name = intentFromLookup.getStringExtra("name");
 
-
-        JSONObject summonerJson = null;
-        try {
-            summonerJson = new JSONObject(summonerJsonString);
-            summonerName.setText(summonerJson.getJSONObject(nameString.toLowerCase()).get("name").toString());
-            summonerLevel.setText(summonerJson.getJSONObject(nameString.toLowerCase()).get("summonerLevel").toString());
-            this.profileImageId = summonerJson.getJSONObject(nameString.toLowerCase()).get("profileIconId").toString();
-            this.summonerId = summonerJson.getJSONObject(nameString.toLowerCase()).get("id").toString();
-
-
-            String profileImageURL = "http://ddragon.leagueoflegends.com/cdn/4.21.5/img/profileicon/" + this.profileImageId + ".png";
-
-            ImageAsyncTask imageTask = new ImageAsyncTask(profileImageURL,this.profileImageId);
-            imageTask.summProf = this;
-            imageTask.execute(this.profileImageId);
-
-
-        }
-        catch(JSONException je) {
-
-            System.out.println("JSON Exception -- SummonerProfile -- OnCreate");
-        }
-
-        String statsJsonURL = "https://na.api.pvp.net//api/lol/na/v1.3/stats/by-summoner/" + this.summonerId + "/summary" + "?api_key=" + StringUtils.devKey;
-        //JsonAsyncTask defaultSetupTask = new JsonAsyncTask(statsJsonURL,"x","totalStats");
-        //defaultSetupTask.summProf = this;
-        //defaultSetupTask.execute(statsJsonURL);
-
+        setupUi(name, region);
     }
 
 
@@ -120,17 +80,46 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
     }
 
 
-    @Override
-    public void onClick(View v)
-    {
-        if(v == this.refreshButton)
-        {
-            finish();
-            startActivity(getIntent());
 
-        }
+    private void setupUi(String name, String region)
+    {
+        RiotApiSummonerDao riotDao = RiotApiSummonerService.createService(RiotApiSummonerDao.class);
+        Call<SummonerInfo> call = riotDao.getSummonerInfo(name, region, StringUtils.devKey);
+
+        Log.d("DEBUG", "name = " + name + " " + region);
+
+        call.enqueue(new Callback<SummonerInfo>(){
+
+            @Override
+            public void onResponse(Call<SummonerInfo> call, Response<SummonerInfo> response) {
+
+                Log.d("DEBUG", "in response");
+
+                if(response.isSuccessful())
+                {
+                    Log.d("DEBUG", "name = " + response.body().getName());
+
+                    summonerName.setText(response.body().getName());
+                    summonerLevel.setText(String.valueOf(response.body().getSummonerLevel()));
+                }
+                else
+                {
+                    Log.d("DEBUG", response.errorBody().toString());
+                    Log.d("DEBUG", response.message().toString());
+                }
+            }
+            @Override
+            public void onFailure(Call<SummonerInfo> call, Throwable t ) {
+                Log.wtf("FAILURE", "Failed to get response from Riot API");
+            }
+        });
+    }
+
+    @Override
+    public void onClick(View v) {
 
     }
+
 
     public void setupStatScreen()
     {
