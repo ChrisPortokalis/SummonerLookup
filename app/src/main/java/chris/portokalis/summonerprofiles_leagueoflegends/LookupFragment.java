@@ -82,6 +82,13 @@ public class LookupFragment extends Fragment implements View.OnClickListener {
         ArrayAdapter<CharSequence> adapt = ArrayAdapter.createFromResource(this.getActivity().getApplicationContext(),R.array.regionSpinner, android.R.layout.simple_spinner_item);
         adapt.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         region.setAdapter(adapt);
+
+        String region = SummonerCache.getRegion(getActivity().getApplicationContext());
+
+        if(!StringUtils.isNullOrEmpty(region))
+        {
+            this.region.setSelection(adapt.getPosition(region));
+        }
     }
 
     private void getCurrentVersionAndStartActivity(final String region)
