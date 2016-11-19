@@ -1,6 +1,6 @@
 package chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.DAO;
 
-import org.json.JSONObject;
+import java.util.Map;
 
 import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.Model.SummonerInfo;
 import retrofit2.Call;
@@ -14,7 +14,7 @@ import retrofit2.http.Query;
 public interface RiotApiSummonerDao {
 
    @GET("{region}/v1.4/summoner/by-name/{summonerName}/")
-   Call<SummonerInfo> getSummonerInfo(@Path("summonerName") String summonerName, @Path("region") String region, @Query("api_key") String apiKey);
+   Call<Map<String, SummonerInfo>> getSummonerInfo(@Path("summonerName") String summonerName, @Path("region") String region, @Query("api_key") String apiKey);
 
    String getCurrentVersion();
 }

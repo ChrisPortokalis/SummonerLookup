@@ -2,21 +2,26 @@ package chris.portokalis.summonerprofiles_leagueoflegends;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
+import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.Cache.SummonerCache;
 import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.Utils.StringUtils;
 import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.DAO.RiotApiSummonerDao;
 import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.Model.SummonerInfo;
@@ -31,10 +36,10 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
     public TextView summonerLevel;
     public ImageView summonerProfileImage;
     public ScrollView profileScrollView;
-    public JSONObject totalStatsJson;
 
     private String profileImageId;
     private String summonerId;
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +56,10 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
 
         Intent intentFromLookup = getIntent();
         String region = intentFromLookup.getStringExtra("region");
-        String name = intentFromLookup.getStringExtra("name");
+        this.name = intentFromLookup.getStringExtra("name");
 
-        setupUi(name, region);
+        setupSummonerInfo(name, region);
+
     }
 
 
@@ -81,35 +87,52 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
 
 
 
-    private void setupUi(String name, String region)
+    private void setupSummonerInfo(final String name, final String region)
     {
-        RiotApiSummonerDao riotDao = RiotApiSummonerService.createService(RiotApiSummonerDao.class);
-        Call<SummonerInfo> call = riotDao.getSummonerInfo(name, region, StringUtils.devKey);
+        RiotApiSummonerDao riotDao = RiotApiSummonerService.createService(RiotApiSummonerDao.class, region);
+        Call<Map<String, SummonerInfo>> call = riotDao.getSummonerInfo(name, region, StringUtils.devKey);
 
-        Log.d("DEBUG", "name = " + name + " " + region);
-
-        call.enqueue(new Callback<SummonerInfo>(){
+        call.enqueue(new Callback<Map<String, SummonerInfo>>(){
 
             @Override
-            public void onResponse(Call<SummonerInfo> call, Response<SummonerInfo> response) {
+            public void onResponse(Call<Map<String, SummonerInfo>> call, Response<Map<String, SummonerInfo>> response) {
 
                 Log.d("DEBUG", "in response");
 
                 if(response.isSuccessful())
                 {
-                    Log.d("DEBUG", "name = " + response.body().getName());
 
-                    summonerName.setText(response.body().getName());
-                    summonerLevel.setText(String.valueOf(response.body().getSummonerLevel()));
+                    Log.d("DEBUG", "name = " + response.body());
+
+                    if(response.message().toString().equals("Not Found")) {
+
+                        Toast toast = new Toast(getApplicationContext());
+                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                        toast.setDuration(Toast.LENGTH_LONG);
+                        toast.show();
+                        finishActivity(0);
+                    }
+                    else {
+                        //convert name to lowercase and remove spaces for Map key
+                        String newName = name.replaceAll("\\s+","").toLowerCase();
+                        SummonerInfo summoner = response.body().get(newName);
+                        summonerName.setText(summoner.getName());
+                        summonerLevel.setText(String.valueOf(summoner.getSummonerLevel()));
+
+                        SummonerCache.storeRegion(region, getApplicationContext());
+                        SummonerCache.storeSummonerName(name, getApplicationContext());
+                    }
                 }
                 else
                 {
-                    Log.d("DEBUG", response.errorBody().toString());
-                    Log.d("DEBUG", response.message().toString());
+                    if(response.message().toString().equals("Not Found")) {
+
+                        Toast.makeText(getApplicationContext(), "Summoner Not Found", Toast.LENGTH_LONG).show();
+                    }
                 }
             }
             @Override
-            public void onFailure(Call<SummonerInfo> call, Throwable t ) {
+            public void onFailure(Call<Map<String, SummonerInfo>> call, Throwable t ) {
                 Log.wtf("FAILURE", "Failed to get response from Riot API");
             }
         });
@@ -117,40 +140,6 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-
-    }
-
-
-    public void setupStatScreen()
-    {
-        String numberOfKills = "";
-        try {
-            JSONArray totalStatsJsonArr = this.totalStatsJson.getJSONArray("playerStatSummaries");
-            JSONObject unrankedStatsJson = totalStatsJsonArr.getJSONObject(12).getJSONObject("aggregatedStats");
-            System.out.println(unrankedStatsJson.toString());
-            numberOfKills = unrankedStatsJson.getString("totalChampionKills");
-            System.out.println(numberOfKills);
-        }
-        catch(JSONException je)
-        {
-            System.out.println("SummProf setupStatScreen JSON EXCEPTION");
-        }
-
-        LinearLayout verticalLL = new LinearLayout(getApplicationContext());
-        verticalLL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT));
-        verticalLL.setGravity(LinearLayout.VERTICAL);
-
-        LinearLayout horizontalLL1 = new LinearLayout(getApplicationContext());
-        horizontalLL1.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT));
-        horizontalLL1.setGravity(LinearLayout.HORIZONTAL);
-
-        TextView totalKills = new TextView(getApplicationContext());
-        totalKills.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        totalKills.setText(numberOfKills);
-
-        horizontalLL1.addView(totalKills);
-        verticalLL.addView(horizontalLL1);
-        profileScrollView.addView(verticalLL);
 
     }
 
