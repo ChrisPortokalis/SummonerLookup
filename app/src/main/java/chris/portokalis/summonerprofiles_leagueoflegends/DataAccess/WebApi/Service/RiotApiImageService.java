@@ -12,13 +12,13 @@ public class RiotApiImageService {
 
     private static final String API_BASE_URL = "http://ddragon.leagueoflegends.com/cdn";
 
-    public static Request getSummonerIconRequest(String version, String imageId)
+    public static Request getSummonerIconRequest(String version, int imageId)
     {
         return new Request.Builder().url(buildSummonerIconUrl(version, imageId)).build();
     }
 
-    public static String buildSummonerIconUrl(String version, String imageId)
+    public static String buildSummonerIconUrl(String version, int imageId)
     {
-        return String.format("%1s/%2s/img/profileicon/%3s.png", API_BASE_URL, version, imageId);
+        return String.format("%1s/%2s/img/profileicon/%d.png", API_BASE_URL, version, imageId);
     }
 }

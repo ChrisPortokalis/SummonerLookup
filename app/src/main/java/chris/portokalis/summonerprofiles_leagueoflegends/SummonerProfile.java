@@ -120,14 +120,14 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
                         Log.d("DEBUG", "newName = " + newName);
 
                         SummonerInfo summoner = response.body().get(newName);
-                        summonerName.setText(response.body().get(newName).getName());
-                        summonerLevel.setText(String.valueOf(response.body().get(newName).getSummonerLevel()));
+                        summonerName.setText(summoner.getName());
+                        summonerLevel.setText(String.valueOf(summoner.getSummonerLevel()));
 
                         SummonerCache.storeRegion(region, getApplicationContext());
                         SummonerCache.storeSummonerName(name, getApplicationContext());
 
                         OkHttpClient client = new OkHttpClient();
-                        client.newCall(RiotApiImageService.getSummonerIconRequest(SummonerCache.getVersion(getApplicationContext()), String.valueOf(response.body().get(newName).getProfileIconId())))
+                        client.newCall(RiotApiImageService.getSummonerIconRequest(SummonerCache.getVersion(getApplicationContext()), summoner.getProfileIconId()))
                                 .enqueue(new okhttp3.Callback() {
                                     @Override
                                     public void onFailure(okhttp3.Call call, IOException e) {
@@ -142,7 +142,7 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
                                         {
                                             InputStream is = response.body().byteStream();
                                             final Bitmap bitmap = BitmapFactory.decodeStream(is);
-                                            
+
                                             runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
