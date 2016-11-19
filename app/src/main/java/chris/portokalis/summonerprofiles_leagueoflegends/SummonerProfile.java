@@ -2,7 +2,8 @@ package chris.portokalis.summonerprofiles_leagueoflegends;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -10,55 +11,46 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.Cache.SummonerCache;
 import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.Utils.StringUtils;
 import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.DAO.RiotApiSummonerDao;
-import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.Model.SummonerInfo;
+import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.Model.Summoner.SummonerInfo;
+import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.Service.RiotApiImageService;
 import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.Service.RiotApiSummonerService;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SummonerProfile extends Activity implements View.OnClickListener {
 
+    @BindView(R.id.foundSummName)
     public TextView summonerName;
+    @BindView(R.id.foundSummLevel)
     public TextView summonerLevel;
+    @BindView(R.id.summonerIconImage)
     public ImageView summonerProfileImage;
+    @BindView(R.id.profileScrollView)
     public ScrollView profileScrollView;
-
-    private String profileImageId;
-    private String summonerId;
-    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_summoner_profile);
+        ButterKnife.bind(this);
 
-        this.profileScrollView = (ScrollView)findViewById(R.id.profileScrollView);
-
-        summonerName = (TextView)findViewById(R.id.foundSummName);
-        summonerLevel = (TextView)findViewById(R.id.foundSummLevel);
-
-        summonerProfileImage = (ImageView)findViewById(R.id.summonerIconImage);
-
-        Intent intentFromLookup = getIntent();
-        String region = intentFromLookup.getStringExtra("region");
-        this.name = intentFromLookup.getStringExtra("name");
-
-        setupSummonerInfo(name, region);
+        setupSummonerInfo();
 
     }
 
@@ -87,8 +79,16 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
 
 
 
-    private void setupSummonerInfo(final String name, final String region)
+    private void setupSummonerInfo()
     {
+
+        Intent intentFromLookup = getIntent();
+        final String region = intentFromLookup.getStringExtra("region");
+        final String name = intentFromLookup.getStringExtra("name");
+
+        Log.d("DEBUG", "name = " + name);
+        Log.d("DEUBG", "region = " + region);
+
         RiotApiSummonerDao riotDao = RiotApiSummonerService.createService(RiotApiSummonerDao.class, region);
         Call<Map<String, SummonerInfo>> call = riotDao.getSummonerInfo(name, region, StringUtils.devKey);
 
@@ -114,13 +114,47 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
                     }
                     else {
                         //convert name to lowercase and remove spaces for Map key
-                        String newName = name.replaceAll("\\s+","").toLowerCase();
+                        String newName = name;
+                        newName = newName.replaceAll("\\s+","").toLowerCase();
+
+                        Log.d("DEBUG", "newName = " + newName);
+
                         SummonerInfo summoner = response.body().get(newName);
-                        summonerName.setText(summoner.getName());
-                        summonerLevel.setText(String.valueOf(summoner.getSummonerLevel()));
+                        summonerName.setText(response.body().get(newName).getName());
+                        summonerLevel.setText(String.valueOf(response.body().get(newName).getSummonerLevel()));
 
                         SummonerCache.storeRegion(region, getApplicationContext());
                         SummonerCache.storeSummonerName(name, getApplicationContext());
+
+                        OkHttpClient client = new OkHttpClient();
+                        client.newCall(RiotApiImageService.getSummonerIconRequest(SummonerCache.getVersion(getApplicationContext()), String.valueOf(response.body().get(newName).getProfileIconId())))
+                                .enqueue(new okhttp3.Callback() {
+                                    @Override
+                                    public void onFailure(okhttp3.Call call, IOException e) {
+                                        Log.wtf("WTF", "FAILED TO GET IMAGE FROM DDRAGON");
+
+                                    }
+
+                                    @Override
+                                    public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+
+                                        if(response.isSuccessful())
+                                        {
+                                            InputStream is = response.body().byteStream();
+                                            final Bitmap bitmap = BitmapFactory.decodeStream(is);
+                                            
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    summonerProfileImage.setImageBitmap(bitmap);
+                                                }
+                                            });
+                                        }
+                                        else{
+                                            Log.wtf("WTF", "wtf happened");
+                                        }
+                                    }
+                                });
                     }
                 }
                 else
@@ -142,5 +176,7 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
     public void onClick(View v) {
 
     }
+
+
 
 }

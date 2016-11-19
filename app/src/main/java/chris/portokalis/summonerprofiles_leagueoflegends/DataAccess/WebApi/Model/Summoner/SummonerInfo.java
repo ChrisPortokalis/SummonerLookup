@@ -1,4 +1,4 @@
-package chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.Model;
+package chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.Model.Summoner;
 
 import android.util.Log;
 

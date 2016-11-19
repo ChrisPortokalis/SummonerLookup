@@ -2,7 +2,7 @@ package chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.DAO;
 
 import java.util.Map;
 
-import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.Model.SummonerInfo;
+import chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.WebApi.Model.Summoner.SummonerInfo;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;

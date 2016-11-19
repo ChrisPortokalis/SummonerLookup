@@ -9,8 +9,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class RiotApiSummonerService {
 
-    public static final String API_BASE_URL_1 = "https://";
-    public static final String API_BASE_URL_2 = ".api.pvp.net/api/lol/";
+    private static final String API_BASE_URL_1 = "https://";
+    private static final String API_BASE_URL_2 = ".api.pvp.net/api/lol/";
 
     public static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 

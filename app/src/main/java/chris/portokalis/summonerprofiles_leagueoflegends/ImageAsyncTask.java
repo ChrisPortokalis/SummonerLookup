@@ -65,6 +65,4 @@ public class ImageAsyncTask extends AsyncTask<String, Bitmap, String> {
     {
         this.summProf.summonerProfileImage.setImageDrawable(this.iconDrawable);
     }
-
-
 }
