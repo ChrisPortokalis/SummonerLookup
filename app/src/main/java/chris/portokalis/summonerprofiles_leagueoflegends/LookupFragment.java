@@ -73,11 +73,8 @@ public class LookupFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v)
     {
-        getCurrentVersion(region.getSelectedItem().toString());
-        Intent intent = new Intent(getActivity(),SummonerProfile.class);
-        intent.putExtra("name", this.summonerNameSearchKey.getText().toString());
-        intent.putExtra("region", region.getSelectedItem().toString());
-        startActivity(intent);
+        getCurrentVersionAndStartActivity(region.getSelectedItem().toString());
+
     }
 
     public void setupSpinnerAdapter()
@@ -87,7 +84,7 @@ public class LookupFragment extends Fragment implements View.OnClickListener {
         region.setAdapter(adapt);
     }
 
-    private void getCurrentVersion(String region)
+    private void getCurrentVersionAndStartActivity(final String region)
     {
         RiotApiStaticDataDao riotDao = RiotApiStaticDataService.createService(RiotApiStaticDataDao.class);
         Call<ArrayList<String>> call = riotDao.getVersions(region, StringUtils.devKey);
@@ -102,6 +99,10 @@ public class LookupFragment extends Fragment implements View.OnClickListener {
                 if(response.isSuccessful())
                 {
                     SummonerCache.storeVersion(response.body().get(0), getActivity().getApplicationContext());
+                    Intent intent = new Intent(getActivity(),SummonerProfile.class);
+                    intent.putExtra("name", summonerNameSearchKey.getText().toString());
+                    intent.putExtra("region", region);
+                    startActivity(intent);
                 }
             }
             @Override
