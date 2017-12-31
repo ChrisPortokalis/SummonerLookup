@@ -13,6 +13,6 @@ import retrofit2.http.Query;
  */
 public interface RiotApiStaticDataDao {
 
-    @GET("{region}/v1.2/versions")
-    public Call<ArrayList<String>> getVersions(@Path("region") String region, @Query("api_key") String apiKey);
+    @GET("versions")
+    public Call<ArrayList<String>> getVersions(@Query("api_key") String apiKey);
 }

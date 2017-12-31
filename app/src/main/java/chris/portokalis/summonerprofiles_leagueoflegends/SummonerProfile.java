@@ -90,12 +90,12 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
         Log.d("DEUBG", "region = " + region);
 
         RiotApiSummonerDao riotDao = RiotApiSummonerService.createService(RiotApiSummonerDao.class, region);
-        Call<Map<String, SummonerInfo>> call = riotDao.getSummonerInfo(name, region, StringUtils.devKey);
+        Call<SummonerInfo> call = riotDao.getSummonerInfo(name, StringUtils.devKey);
 
-        call.enqueue(new Callback<Map<String, SummonerInfo>>(){
+        call.enqueue(new Callback<SummonerInfo>(){
 
             @Override
-            public void onResponse(Call<Map<String, SummonerInfo>> call, Response<Map<String, SummonerInfo>> response) {
+            public void onResponse(Call<SummonerInfo> call, Response<SummonerInfo> response) {
 
                 Log.d("DEBUG", "in response");
 
@@ -119,7 +119,7 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
 
                         Log.d("DEBUG", "newName = " + newName);
 
-                        SummonerInfo summoner = response.body().get(newName);
+                        SummonerInfo summoner = response.body();
                         summonerName.setText(summoner.getName());
                         summonerLevel.setText(String.valueOf(summoner.getSummonerLevel()));
 
@@ -166,7 +166,7 @@ public class SummonerProfile extends Activity implements View.OnClickListener {
                 }
             }
             @Override
-            public void onFailure(Call<Map<String, SummonerInfo>> call, Throwable t ) {
+            public void onFailure(Call<SummonerInfo> call, Throwable t ) {
                 Log.wtf("FAILURE", "Failed to get response from Riot API");
             }
         });

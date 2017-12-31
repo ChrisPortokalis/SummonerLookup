@@ -3,35 +3,15 @@ package chris.portokalis.summonerprofiles_leagueoflegends;
 //android imports
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.os.StrictMode;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.TextView;
-import android.widget.LinearLayout;
 
-//JSON imports
-import org.json.JSONException;
-import org.json.JSONObject;
-
-//url imports
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import java.io.*;
 import java.lang.*;
-import android.support.v7.app.ActionBarActivity;
-import chris.portokalis.*;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 
-
-public class SummonerLookup extends ActionBarActivity {
+public class SummonerLookup extends AppCompatActivity {
    // StrictMode.setThreadPolicy(policy);
     //private member variables
     public FrameLayout frame;

@@ -5,7 +5,7 @@ package chris.portokalis.summonerprofiles_leagueoflegends.DataAccess.Utils;
  */
 public class StringUtils {
 
-    public static final String devKey = "RGAPI-F019138C-FAE7-4F8E-9614-6A599691E95F";
+    public static final String devKey = "RGAPI-787bd541-df9a-41b7-a33f-112fd097e3c5";
 
     public static boolean isNullOrEmpty(String str) {
         return str == null || str.length() == 0;

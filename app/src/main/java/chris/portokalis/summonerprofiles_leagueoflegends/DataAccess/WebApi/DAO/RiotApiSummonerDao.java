@@ -13,8 +13,8 @@ import retrofit2.http.Query;
  */
 public interface RiotApiSummonerDao {
 
-   @GET("{region}/v1.4/summoner/by-name/{summonerName}/")
-   Call<Map<String, SummonerInfo>> getSummonerInfo(@Path("summonerName") String summonerName, @Path("region") String region, @Query("api_key") String apiKey);
+   @GET("by-name/{summonerName}")
+   Call<SummonerInfo> getSummonerInfo(@Path("summonerName") String summonerName, @Query("api_key") String apiKey);
 
    String getCurrentVersion();
 }

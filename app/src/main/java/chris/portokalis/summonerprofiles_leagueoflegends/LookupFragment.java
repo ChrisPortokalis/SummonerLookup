@@ -93,8 +93,8 @@ public class LookupFragment extends Fragment implements View.OnClickListener {
 
     private void getCurrentVersionAndStartActivity(final String region)
     {
-        RiotApiStaticDataDao riotDao = RiotApiStaticDataService.createService(RiotApiStaticDataDao.class);
-        Call<ArrayList<String>> call = riotDao.getVersions(region, StringUtils.devKey);
+        RiotApiStaticDataDao riotDao = RiotApiStaticDataService.createService(RiotApiStaticDataDao.class, region);
+        Call<ArrayList<String>> call = riotDao.getVersions(StringUtils.devKey);
 
         call.enqueue(new Callback<ArrayList<String>>(){
 
@@ -110,6 +110,18 @@ public class LookupFragment extends Fragment implements View.OnClickListener {
                     intent.putExtra("name", summonerNameSearchKey.getText().toString());
                     intent.putExtra("region", region);
                     startActivity(intent);
+                }
+                else if(response.message().contains("Too Many Requests"))
+                {
+                    String version = SummonerCache.getVersion(getActivity().getApplicationContext());
+
+                    if(version != null)
+                    {
+                        Intent intent = new Intent(getActivity(),SummonerProfile.class);
+                        intent.putExtra("name", summonerNameSearchKey.getText().toString());
+                        intent.putExtra("region", region);
+                        startActivity(intent);
+                    }
                 }
             }
             @Override

@@ -16,16 +16,17 @@
 
     <!-- spinner list-->
     <string-array name="regionSpinner">
-        <item>BR</item>
-        <item>EUNE</item>
-        <item>EUW</item>
-        <item>LAN</item>
-        <item>LAS</item>
-        <item>NA</item>
-        <item>OCE</item>
+        <item>BR1</item>
+        <item>EUN1</item>
+        <item>EUW1</item>
+        <item>LA1</item>
+        <item>LA2</item>
+        <item>NA1</item>
+        <item>OC1</item>
         <item>RU</item>
-        <item>TR</item>
+        <item>TR1</item>
         <item>KR</item>
+        <item>JP1</item>
     </string-array>
 
 </resources>
